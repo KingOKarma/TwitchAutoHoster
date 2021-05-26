@@ -1,0 +1,38 @@
+{
+  "name": "twitchmodbot",
+  "version": "1.0.0",
+  "description": "It's a twitch bot for automoderation in multiple channels",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node ./build/bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KingOKarma/TwitchModBot.git"
+  },
+  "author": "KingOKarma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KingOKarma/TwitchModBot/issues"
+  },
+  "homepage": "https://github.com/KingOKarma/TwitchModBot#readme",
+  "devDependencies": {
+    "@types/cron": "^1.7.2",
+    "@types/js-yaml": "^4.0.1",
+    "@types/ms": "^0.7.31",
+    "@types/node": "^15.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
+    "eslint": "^7.25.0"
+  },
+  "dependencies": {
+    "cron": "^1.8.2",
+    "discord.js": "^12.5.3",
+    "js-yaml": "^4.1.0",
+    "twitch": "^4.5.5",
+    "twitch-auth": "^4.5.5",
+    "twitch-chat-client": "^4.5.5",
+    "typescript": "^4.2.4"
+  }
+}
