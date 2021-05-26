@@ -5,6 +5,12 @@ accessToken: Your access Token
 botAccessToken: This is the access Token used for the bot account
 # using your chatbot of choice's token (This is to allows the bot to view and type in chat)
 
+botUserName: YOUR TWITCH Bots user name in LOWERCASE
+
+changeHostChannelID: "The Discord channel ID where autohost events will be posted"
+
+chatChannelID: "Discord Channel ID where chat will be relayed"
+
 clientID: Your Client ID
 # When getting your client ID
 # Make sure the broadcaster you are getting the client ID for has authorised this link
@@ -16,7 +22,12 @@ clientID: Your Client ID
 #Twitch Dev console can be found at:
 #https://dev.twitch.tv/console/
 
+discordBotToken: YOUR Discord Bot Token
+
+fallBackList: ["Array Of users to fallback to when the Hostlist is empty"]
+
 prefix: Your Prefix here
 
 twitchUsername: Put Your Twitch Username here in full lowercase letters
 # If your hostname also has a path prefix you can go into main.ts and edit under "port" in "ReverseProxyAdapter":  "pathprefix" same case for the external port
+
