@@ -1,4 +1,4 @@
-import { CONFIG, STORAGE } from "../utils/globals";
+import { CONFIG, STORAGE, commandList } from "../utils/globals";
 import { Client, TextChannel } from "discord.js";
 import { ApiClient } from "twitch";
 import { ChatClient } from "twitch-chat-client";
@@ -32,6 +32,8 @@ const authChatProvider = new StaticAuthProvider(clientID, botAccessToken);
 const apiClient = new ApiClient({ authProvider: authChatProvider });
 
 const bot = new Client();
+
+const { prefix } = CONFIG;
 
 
 export async function intiChatClient(): Promise<void> {
@@ -145,6 +147,35 @@ export async function intiChatClient(): Promise<void> {
         if (isLive === null) return;
 
         sendChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
+
+        const args = message.slice(prefix.length).trim().split(/ +/g);
+
+        const cmd = args.shift()?.toLowerCase();
+
+        if (cmd === undefined) {
+            return;
+        }
+
+        const cmdIndex = commandList.findIndex((n) => {
+
+            return n.name === cmd || n.aliases.includes(cmd);
+
+        });
+
+        if (cmdIndex === -1) {
+            return;
+        }
+
+        const foundcmd = commandList[cmdIndex];
+
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const commandFile = require(`../commands/${foundcmd.group}/${foundcmd.name}.js`);
+            commandFile.run(chatClient, channel, user, message, msg, args);
+
+        } catch (err) {
+
+        }
 
     });
 

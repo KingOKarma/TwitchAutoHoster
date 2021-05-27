@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { CONFIG } from "../../utils/globals";
 import { ChatClient } from "twitch-chat-client/lib";
 import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
 import fetch from "node-fetch";
@@ -12,7 +13,7 @@ exports.run = async (chatClient: ChatClient,
     args: string[]): Promise<void> => {
 
     const res = await fetch(
-        "https://tmi.twitch.tv/group/user/king_o_karma/chatters"
+        `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername}/chatters`
     );
 
     if (res.status !== 200) {
