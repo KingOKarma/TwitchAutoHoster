@@ -22,7 +22,6 @@ exports.run = async (chatClient: ChatClient,
 
     const body = await res.json();
 
-    return chatClient.say(channel, `There are ${body.chatter_count} in chat!`
-    + ` and they are ${body.chatters.viewers.join(" ")}`);
+    return chatClient.say(channel, `There are ${body.chatter_count} in chat!`);
 
 };
