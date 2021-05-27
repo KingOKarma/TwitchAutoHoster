@@ -13,8 +13,10 @@ import fs from "fs";
  * @property {string} clientID
  * @property {string} discordBotToken
  * @property {string[]} fallBackList
+ * @property {string} offlineChannelID
  * @property {string} prefix
  * @property {string} twitchUsername
+ * @property {string[]} usersBlacklist
  */
 export default class Config {
     private static readonly _configLocation = "./config.yml";
@@ -35,9 +37,13 @@ export default class Config {
 
     public readonly fallBackList: string[];
 
+    public readonly offlineChannelID: string;
+
     public readonly prefix: string;
 
     public readonly twitchUsername: string;
+
+    public readonly usersBlacklist: string[];
 
 
     private constructor() {
@@ -49,8 +55,10 @@ export default class Config {
         this.clientID = "";
         this.discordBotToken = "";
         this.fallBackList = [""];
+        this.offlineChannelID = "";
         this.prefix = "";
         this.twitchUsername = "";
+        this.usersBlacklist = [""];
 
     }
 

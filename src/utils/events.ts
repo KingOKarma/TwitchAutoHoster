@@ -143,9 +143,15 @@ export async function intiChatClient(): Promise<void> {
 
     chatClient.onMessage(async (channel: string, user: string, message: string, msg: TwitchPrivateMessage) => {
         const sendChannel = bot.channels.cache.get(CONFIG.chatChannelID) as TextChannel;
+        const offlineChannel = bot.channels.cache.get(CONFIG.offlineChannelID) as TextChannel;
+
         const isLive = await apiClient.helix.streams.getStreamByUserName(channel.slice(1));
+        if (CONFIG.usersBlacklist.includes(channel)) return;
+
         if (isLive !== null) {
             sendChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
+        } else {
+            offlineChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
 
         }
 

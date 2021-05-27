@@ -24,6 +24,8 @@ clientID: Your Client ID
 
 discordBotToken: YOUR Discord Bot Token
 
+offlineChannelID: "CHANNEL ID FOR OFFLINE CHAT CHANNEL"
+
 fallBackList: ["Array Of users to fallback to when the Hostlist is empty"]
 
 prefix: Your Prefix here
@@ -31,3 +33,4 @@ prefix: Your Prefix here
 twitchUsername: Put Your Twitch Username here in full lowercase letters
 # If your hostname also has a path prefix you can go into main.ts and edit under "port" in "ReverseProxyAdapter":  "pathprefix" same case for the external port
 
+usersBlacklist: []
