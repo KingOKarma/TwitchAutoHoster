@@ -47,7 +47,7 @@ export async function intiChatClient(): Promise<void> {
     // 30 checks every 5 hours
     const viewerCheck = new CronJob("0 */10 * * * *", async () => {
         const res = await fetch(
-            "https://tmi.twitch.tv/group/user/king_o_karma/chatters"
+            `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername}/chatters`
         );
 
         if (res.status !== 200) {
