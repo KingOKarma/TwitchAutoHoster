@@ -107,7 +107,7 @@ export async function intiChatClient(): Promise<void> {
             sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
             STORAGE.currentlyHosted = channel.toLowerCase();
             Storage.saveConfig();
-            return chatClient.host(CONFIG.botUserName, channel.toLowerCase());
+            return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
 
 
         }
@@ -133,7 +133,7 @@ export async function intiChatClient(): Promise<void> {
         sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
 
         Storage.saveConfig();
-        return chatClient.host(CONFIG.botUserName, channel.toLowerCase());
+        return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
     });
 
     viewerCheck.start();
