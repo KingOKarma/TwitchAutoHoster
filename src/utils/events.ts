@@ -86,6 +86,8 @@ export async function intiChatClient(): Promise<void> {
     });
 
     const newHost = new CronJob("0 */30 * * * *", async () => {
+        console.log("New Host time:");
+        console.log(STORAGE.canHost.length === 0);
 
         if (STORAGE.canHost.length === 0) {
             const channel = CONFIG.fallBackList[Math.floor(Math.random() * CONFIG.fallBackList.length)];
@@ -97,13 +99,15 @@ export async function intiChatClient(): Promise<void> {
 
             console.log(CONFIG.fallBackList);
             console.log(channel);
+            console.log(`is live?: ${isLive}`);
 
             if (isLive === null) return;
             const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+            console.log(`Changed host to ${user.displayName} from fallbacklist`);
             sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
             STORAGE.currentlyHosted = channel.toLowerCase();
             Storage.saveConfig();
-            return chatClient.host(`#${CONFIG.botUserName}`, channel.toLowerCase());
+            return chatClient.host(CONFIG.botUserName, channel.toLowerCase());
 
 
         }
@@ -117,6 +121,7 @@ export async function intiChatClient(): Promise<void> {
 
         console.log(CONFIG.fallBackList);
         console.log(channel);
+        console.log(`is live?: ${isLive}`);
 
         if (isLive === null) return;
 
@@ -124,10 +129,11 @@ export async function intiChatClient(): Promise<void> {
         const hostedChannel = STORAGE.canHost.indexOf(channel);
         STORAGE.canHost.splice(hostedChannel, 1);
         const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+        console.log(`Changed host to ${user.displayName}`);
         sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
 
         Storage.saveConfig();
-        return chatClient.host(`#${CONFIG.botUserName}`, channel.toLowerCase());
+        return chatClient.host(CONFIG.botUserName, channel.toLowerCase());
     });
 
     viewerCheck.start();
