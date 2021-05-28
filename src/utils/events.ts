@@ -66,6 +66,8 @@ export async function intiChatClient(): Promise<void> {
         console.log(`${new Date().toTimeString()} Chatters currently in chat: \n${allChatters.join(", ")}`);
 
         allChatters.forEach((chatter) => {
+            if (CONFIG.usersBlacklist.includes(chatter)) return;
+
             const foundChannel = STORAGE.channels.find((channel) => channel.channel === chatter);
             if (foundChannel === undefined) {
                 STORAGE.channels.push({ channel: chatter, minCheck: 0 });
@@ -85,29 +87,35 @@ export async function intiChatClient(): Promise<void> {
         });
     });
 
+    async function backupHost(): Promise<void> {
+        const channel = CONFIG.fallBackList[Math.floor(Math.random() * CONFIG.fallBackList.length)];
+        if (channel === STORAGE.currentlyHosted) return;
+        const user = await apiClient.helix.users.getUserByName(channel);
+        console.log(user);
+        if (user === null) return;
+        const isLive = await user.getStream();
+
+        console.log(CONFIG.fallBackList);
+        console.log(channel);
+        console.log(`is live?: ${isLive}`);
+
+        if (isLive === null) return;
+        const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+        console.log(`Changed host to ${user.displayName} from fallbacklist`);
+        sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
+        STORAGE.currentlyHosted = channel.toLowerCase();
+        Storage.saveConfig();
+        return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
+
+    }
+
+
     const newHost = new CronJob("0 */30 * * * *", async () => {
         console.log("New Host time:");
         console.log(STORAGE.canHost.length === 0);
 
         if (STORAGE.canHost.length === 0) {
-            const channel = CONFIG.fallBackList[Math.floor(Math.random() * CONFIG.fallBackList.length)];
-            if (channel === STORAGE.currentlyHosted) return;
-            const user = await apiClient.helix.users.getUserByName(channel);
-            console.log(user);
-            if (user === null) return;
-            const isLive = await user.getStream();
-
-            console.log(CONFIG.fallBackList);
-            console.log(channel);
-            console.log(`is live?: ${isLive}`);
-
-            if (isLive === null) return;
-            const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
-            console.log(`Changed host to ${user.displayName} from fallbacklist`);
-            sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
-            STORAGE.currentlyHosted = channel.toLowerCase();
-            Storage.saveConfig();
-            return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
+            return backupHost();
 
 
         }
@@ -123,7 +131,7 @@ export async function intiChatClient(): Promise<void> {
         console.log(channel);
         console.log(`is live?: ${isLive}`);
 
-        if (isLive === null) return;
+        if (isLive === null) return backupHost();
 
         STORAGE.currentlyHosted = channel.toLowerCase();
         const hostedChannel = STORAGE.canHost.indexOf(channel);
