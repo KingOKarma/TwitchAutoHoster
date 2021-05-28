@@ -63,7 +63,7 @@ export async function intiChatClient(): Promise<void> {
         allChatters.concat(body.chatters.global_mods);
         allChatters.concat(body.chatters.admins);
         allChatters.concat(body.chatters.vips);
-        console.log(`${new Date().toTimeString()}Chatters currently in chat: \n${allChatters.join(", ")}`);
+        console.log(`${new Date().toTimeString()} Chatters currently in chat: \n${allChatters.join(", ")}`);
 
         allChatters.forEach((chatter) => {
             const foundChannel = STORAGE.channels.find((channel) => channel.channel === chatter);
@@ -91,6 +91,7 @@ export async function intiChatClient(): Promise<void> {
             const channel = CONFIG.fallBackList[Math.floor(Math.random() * CONFIG.fallBackList.length)];
             if (channel === STORAGE.currentlyHosted) return;
             const user = await apiClient.helix.users.getUserByName(channel);
+            console.log(user);
             if (user === null) return;
             const isLive = await user.getStream();
 
