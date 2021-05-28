@@ -87,7 +87,7 @@ export async function intiChatClient(): Promise<void> {
 
     const newHost = new CronJob("0 */30 * * * *", async () => {
 
-        if (STORAGE.canHost === []) {
+        if (STORAGE.canHost.length === 0) {
             const channel = CONFIG.fallBackList[Math.floor(Math.random() * CONFIG.fallBackList.length)];
             if (channel === STORAGE.currentlyHosted) return;
             const user = await apiClient.helix.users.getUserByName(channel);
