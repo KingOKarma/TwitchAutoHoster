@@ -208,11 +208,12 @@ export async function intiChatClient(): Promise<void> {
 
     });
 
-    bot.on("ready", () => {
-        console.log(`Discord: ${bot.user?.tag} is online!`);
-    });
-
     if (CONFIG.discordBotToken !== undefined) {
+
+        bot.on("ready", () => {
+            console.log(`Discord: ${bot.user?.tag} is online!`);
+        });
+
         bot.login(CONFIG.discordBotToken).catch(console.error);
 
     }
