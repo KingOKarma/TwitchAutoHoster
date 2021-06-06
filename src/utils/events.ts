@@ -100,9 +100,11 @@ export async function intiChatClient(): Promise<void> {
         console.log(`is live?: ${isLive}`);
 
         if (isLive === null) return;
-        const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+        if (CONFIG.changeHostChannelID !== undefined) {
+            const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+            sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
+        }
         console.log(`Changed host to ${user.displayName} from fallbacklist`);
-        sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
         STORAGE.currentlyHosted = channel.toLowerCase();
         Storage.saveConfig();
         return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
@@ -136,9 +138,11 @@ export async function intiChatClient(): Promise<void> {
         STORAGE.currentlyHosted = channel.toLowerCase();
         const hostedChannel = STORAGE.canHost.indexOf(channel);
         STORAGE.canHost.splice(hostedChannel, 1);
-        const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+        if (CONFIG.changeHostChannelID !== undefined) {
+            const sendChannel = bot.channels.cache.get(CONFIG.changeHostChannelID) as TextChannel;
+            sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
+        }
         console.log(`Changed host to ${user.displayName}`);
-        sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
 
         Storage.saveConfig();
         return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
@@ -157,15 +161,17 @@ export async function intiChatClient(): Promise<void> {
     });
 
     chatClient.onMessage(async (channel: string, user: string, message: string, msg: TwitchPrivateMessage) => {
-        const sendChannel = bot.channels.cache.get(CONFIG.chatChannelID) as TextChannel;
-        const offlineChannel = bot.channels.cache.get(CONFIG.offlineChannelID) as TextChannel;
 
         const isLive = await apiClient.helix.streams.getStreamByUserName(channel.slice(1));
         if (CONFIG.usersBlacklist.includes(channel)) return;
 
         if (isLive !== null) {
-            sendChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
-        } else {
+            if (CONFIG.chatChannelID !== undefined) {
+                const sendChannel = bot.channels.cache.get(CONFIG.chatChannelID) as TextChannel;
+                sendChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
+            }
+        } else if (CONFIG.offlineChannelID !== undefined) {
+            const offlineChannel = bot.channels.cache.get(CONFIG.offlineChannelID) as TextChannel;
             offlineChannel.send(`**${msg.userInfo.displayName}**:  ${message}`).catch(console.error);
 
         }
@@ -206,7 +212,10 @@ export async function intiChatClient(): Promise<void> {
         console.log(`Discord: ${bot.user?.tag} is online!`);
     });
 
-    bot.login(CONFIG.discordBotToken).catch(console.error);
+    if (CONFIG.discordBotToken !== undefined) {
+        bot.login(CONFIG.discordBotToken).catch(console.error);
+
+    }
 
 
 }

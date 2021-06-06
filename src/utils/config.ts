@@ -27,17 +27,17 @@ export default class Config {
 
     public readonly botUserName: string;
 
-    public readonly changeHostChannelID: string;
+    public readonly changeHostChannelID: string | undefined;
 
-    public readonly chatChannelID: string;
+    public readonly chatChannelID: string | undefined;
 
     public readonly clientID: string;
 
-    public readonly discordBotToken: string;
+    public readonly discordBotToken: string | undefined;
 
     public readonly fallBackList: string[];
 
-    public readonly offlineChannelID: string;
+    public readonly offlineChannelID: string | undefined;
 
     public readonly prefix: string;
 
