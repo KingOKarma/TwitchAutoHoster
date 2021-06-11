@@ -2,6 +2,14 @@ import { dump, load } from "js-yaml";
 import { CONFIG } from "./globals";
 import fs from "fs";
 
+export interface Twitter {
+    consumerKey: string;
+    consumerSecret: string;
+    postToTwitter: boolean;
+    userAccessToken: string;
+    userSecret: string;
+}
+
 /**
  * This represents the config.yml
  * @class Config
@@ -43,6 +51,8 @@ export default class Config {
 
     public readonly twitchUsername: string;
 
+    public readonly twitter: Twitter;
+
     public readonly usersBlacklist: string[];
 
 
@@ -58,6 +68,14 @@ export default class Config {
         this.offlineChannelID = "";
         this.prefix = "";
         this.twitchUsername = "";
+        this.twitter = {
+            consumerKey: "",
+            consumerSecret: "",
+            postToTwitter: false,
+            userAccessToken: "",
+            userSecret: ""
+        };
+
         this.usersBlacklist = [""];
 
     }

@@ -33,4 +33,13 @@ prefix: Your Prefix here
 twitchUsername: Put Your Twitch Username here in full lowercase letters
 # If your hostname also has a path prefix you can go into main.ts and edit under "port" in "ReverseProxyAdapter":  "pathprefix" same case for the external port
 
+# Tokens to gain access to twitter api, set "postToTwitter" to false if you do not wish the bot to post to twitter
+twitter: {
+    consumerKey: "",
+    consumerSecret: "",
+    postToTwitter: true, # Should the bot post to twitter when getting a new host?
+    userAccessToken: "",
+    userSecret: "",
+  }
+
 usersBlacklist: []

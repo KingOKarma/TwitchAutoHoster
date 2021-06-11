@@ -1,12 +1,29 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { CONFIG, STORAGE, commandList } from "../utils/globals";
 import { Client, TextChannel } from "discord.js";
 import { ApiClient } from "twitch";
 import { ChatClient } from "twitch-chat-client";
 import { CronJob } from "cron";
+import OAuth from "oauth";
 import { StaticAuthProvider } from "twitch-auth";
 import Storage from "./storage";
 import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
 import fetch from "node-fetch";
+
+const twitter_application_consumer_key = CONFIG.twitter.consumerKey; // API Key
+const twitter_application_secret = CONFIG.twitter.consumerSecret; // API Secret
+const twitter_user_access_token = CONFIG.twitter.userAccessToken; // Access Token
+const twitter_user_secret = CONFIG.twitter.userSecret; // Access Token Secret
+
+const oauth = new OAuth.OAuth(
+    "https://api.twitter.com/oauth/request_token",
+    "https://api.twitter.com/oauth/access_token",
+    twitter_application_consumer_key,
+    twitter_application_secret,
+    "1.0A",
+    null,
+    "HMAC-SHA1"
+);
 
 interface Chatters {
     _links: {};
@@ -34,6 +51,32 @@ const apiClient = new ApiClient({ authProvider: authChatProvider });
 const bot = new Client();
 
 const { prefix } = CONFIG;
+
+
+function twitterPost(user: string): void {
+    if (!CONFIG.twitter.postToTwitter) return;
+
+    const status = `${user} Has been switched to the new host, check them out at https://twitch.tv/${user.toLowerCase()}`; // This is the tweet (ie status)
+
+    const postBody = {
+        status
+    };
+
+    // Console.log('Ready to Tweet article:\n\t', postBody.status);
+    oauth.post("https://api.twitter.com/1.1/statuses/update.json",
+        twitter_user_access_token, // Oauth_token (user access token)
+        twitter_user_secret, // Oauth_secret (user secret)
+        postBody, // Post body
+        "", // Post content type ?
+        (err) => {
+            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+            if (err) {
+                console.log(err);
+            } else {
+                // Console.log(data);
+            }
+        });
+}
 
 
 export async function intiChatClient(): Promise<void> {
@@ -106,6 +149,8 @@ export async function intiChatClient(): Promise<void> {
         }
         console.log(`Changed host to ${user.displayName} from fallbacklist`);
         STORAGE.currentlyHosted = channel.toLowerCase();
+        twitterPost(channel);
+
         Storage.saveConfig();
         return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
 
@@ -143,6 +188,7 @@ export async function intiChatClient(): Promise<void> {
             sendChannel.send(`Changed host to ${user.displayName}`).catch(console.error);
         }
         console.log(`Changed host to ${user.displayName}`);
+        twitterPost(channel);
 
         Storage.saveConfig();
         return chatClient.host(CONFIG.botUserName, channel.toLowerCase()).catch(console.error);
@@ -217,6 +263,13 @@ export async function intiChatClient(): Promise<void> {
         bot.login(CONFIG.discordBotToken).catch(console.error);
 
     }
+
+    bot.on("message", (msg) => {
+        if (msg.content === "post") {
+
+        }
+
+    });
 
 
 }
