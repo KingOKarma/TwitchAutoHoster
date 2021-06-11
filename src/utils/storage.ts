@@ -13,6 +13,7 @@ export interface TwitchChannel {
  * @property {string[]} canHost
  * @property {TwitchChannel[]} channels
  * @property {string} currentlyHosted
+ * @property {string[]} fallBackList
 
 
  */
@@ -25,10 +26,13 @@ export default class Storage {
 
     public currentlyHosted: string;
 
+    public fallBackList: string[];
+
     private constructor() {
         this.channels = [{ channel: "", minCheck: 0 }];
         this.canHost = [""];
         this.currentlyHosted = "";
+        this.fallBackList = [""];
 
     }
 

@@ -26,8 +26,6 @@ discordBotToken: YOUR Discord Bot Token
 
 offlineChannelID: "CHANNEL ID FOR OFFLINE CHAT CHANNEL"
 
-fallBackList: ["Array Of users to fallback to when the Hostlist is empty"]
-
 prefix: Your Prefix here
 
 twitchUsername: Put Your Twitch Username here in full lowercase letters

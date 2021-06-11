@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CONFIG, STORAGE, commandList } from "../utils/globals";
-import { Client, TextChannel } from "discord.js";
+import { Client, MessageEmbed, TextChannel } from "discord.js";
 import { ApiClient } from "twitch";
 import { ChatClient } from "twitch-chat-client";
 import { CronJob } from "cron";
@@ -31,11 +31,11 @@ interface Chatters {
     chatter_count: 0;
     chatters: {
         admins: [];
-        broadcaster: [ "" ];
+        broadcaster: [""];
         // eslint-disable-next-line @typescript-eslint/naming-convention
         global_mods: [];
         staff: [];
-        viewers: [ "" ];
+        viewers: [""];
         vips: [];
     };
 }
@@ -56,7 +56,8 @@ const { prefix } = CONFIG;
 function twitterPost(user: string): void {
     if (!CONFIG.twitter.postToTwitter) return;
 
-    const status = `${user} Has been switched to the new host, check them out at https://twitch.tv/${user.toLowerCase()}`; // This is the tweet (ie status)
+    const status = `${user} Has been switched to the new host, check them out at https://twitch.tv/${user.toLowerCase()} \n `
+        + "@ELB_Retweets #StyxCommunity #EverStreamGuild"; // This is the tweet (ie status)
 
     const postBody = {
         status
@@ -118,12 +119,12 @@ export async function intiChatClient(): Promise<void> {
                 return;
             }
 
-            foundChannel.minCheck ++;
+            foundChannel.minCheck++;
             Storage.saveConfig();
             if (foundChannel.minCheck < 30) return;
 
             STORAGE.canHost.push(chatter);
-            const hostedChannel = STORAGE.channels.findIndex((ch) => ch.channel === chatter );
+            const hostedChannel = STORAGE.channels.findIndex((ch) => ch.channel === chatter);
             STORAGE.channels.splice(hostedChannel, 1);
             Storage.saveConfig();
 
@@ -131,14 +132,14 @@ export async function intiChatClient(): Promise<void> {
     });
 
     async function backupHost(): Promise<void> {
-        const channel = CONFIG.fallBackList[Math.floor(Math.random() * CONFIG.fallBackList.length)];
+        const channel = STORAGE.fallBackList[Math.floor(Math.random() * STORAGE.fallBackList.length)];
         if (channel === STORAGE.currentlyHosted) return;
         const user = await apiClient.helix.users.getUserByName(channel);
         console.log(user);
         if (user === null) return;
         const isLive = await user.getStream();
 
-        console.log(CONFIG.fallBackList);
+        console.log(STORAGE.fallBackList);
         console.log(channel);
         console.log(`is live?: ${isLive}`);
 
@@ -174,7 +175,7 @@ export async function intiChatClient(): Promise<void> {
         if (user === null) return;
         const isLive = await user.getStream();
 
-        console.log(CONFIG.fallBackList);
+        console.log(STORAGE.fallBackList);
         console.log(channel);
         console.log(`is live?: ${isLive}`);
 
@@ -265,9 +266,106 @@ export async function intiChatClient(): Promise<void> {
     }
 
     bot.on("message", (msg) => {
-        if (msg.content === "post") {
 
+        const args = msg.content.slice(prefix.length).trim().split(/ +/g);
+
+        const cmd = args.shift()?.toLowerCase();
+
+        if (cmd === undefined) return;
+
+        if (cmd === "fallback") {
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (args[0] === undefined) {
+                return msg.reply(
+                    "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                    + `\`${prefix}fallback add king_o_karma\``);
+            }
+            switch (args[0].toLowerCase()) {
+                case "add": {
+                    // eslint-disable-next-line prefer-destructuring
+                    const channel = args[1];
+
+                    // Checks if the role they want to add is already added
+                    if (STORAGE.fallBackList.includes(channel.toLowerCase())) {
+                        return msg.channel.send(`\`${channel}\` is already on the list! ❌`);
+                    }
+
+                    // Otherwise finally add it to the list
+                    STORAGE.fallBackList.push(channel.toLowerCase());
+                    Storage.saveConfig();
+
+                    return msg.channel.send(
+                        `I have added the channel \`${channel}\` to the list! ✅`
+                    );
+                }
+
+                case "remove": {
+                    // eslint-disable-next-line prefer-destructuring
+                    const channel = args[1];
+
+                    // Checks if the role they want to add is already added
+                    if (!STORAGE.fallBackList.includes(channel.toLowerCase())) {
+                        return msg.channel.send(`\`${channel}\` is not on the list! ❌`);
+                    }
+
+                    // Checks the location in the array for the role
+                    const roleIndex = STORAGE.fallBackList.indexOf(channel.toLowerCase());
+
+                    // Removes the role from the array with the index number
+                    STORAGE.fallBackList.splice(roleIndex, 1);
+                    Storage.saveConfig();
+
+                    return msg.channel.send(
+                        `I have removed the channel \`${channel} \` from the list ✅`);
+                }
+
+                case "list": {
+                    if (!STORAGE.fallBackList.length) {
+                        return msg.channel.send(
+                            `The list is currently emtpy! use ${prefix}fallback addd <channel> `
+                            + "to add a channel to the list!"
+                        );
+                    }
+                    function paginate(array: string[], pageSize: number, pageNumber: number): string[] {
+                        return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+                    }
+                    // eslint-disable-next-line prefer-destructuring
+                    let page = args[1];
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (args[1] === undefined) page = "1";
+
+                    const pagedList = paginate(STORAGE.fallBackList, 10, Number(page));
+
+                    if (pagedList.length === 0) return msg.reply("That page is empty!\n You can add more users via "
+                        + `\`${prefix}fallback add <channelName>\``);
+
+                    const roleList = pagedList.map((list) => `> ○ ${list}\n`);
+                    const embed = new MessageEmbed()
+                        .setAuthor(
+                            msg.author.tag,
+                            msg.author.displayAvatarURL({ dynamic: true })
+                        )
+                        .setTitle("Fallback list")
+                        .setTimestamp()
+                        .setDescription(roleList.join(""));
+
+                    try {
+                        return msg.channel.send(embed);
+                    } catch (_) {
+                        const roles = roleList.join("");
+                        return msg.channel.send(`> listed roles:\n> ${roles}`);
+                    }
+                }
+
+                default: {
+                    return msg.reply(
+                        "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                        + `\`${prefix}fallback add king_o_karma\``);
+                }
+            }
         }
+
 
     });
 

@@ -20,10 +20,10 @@ export interface Twitter {
  * @property {string} chatChannelID
  * @property {string} clientID
  * @property {string} discordBotToken
- * @property {string[]} fallBackList
  * @property {string} offlineChannelID
  * @property {string} prefix
  * @property {string} twitchUsername
+ * @property {Twitter} twitter
  * @property {string[]} usersBlacklist
  */
 export default class Config {
@@ -42,8 +42,6 @@ export default class Config {
     public readonly clientID: string;
 
     public readonly discordBotToken: string | undefined;
-
-    public readonly fallBackList: string[];
 
     public readonly offlineChannelID: string | undefined;
 
@@ -64,7 +62,6 @@ export default class Config {
         this.chatChannelID = "";
         this.clientID = "";
         this.discordBotToken = "";
-        this.fallBackList = [""];
         this.offlineChannelID = "";
         this.prefix = "";
         this.twitchUsername = "";
