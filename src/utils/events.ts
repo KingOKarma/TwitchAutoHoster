@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CONFIG, STORAGE, commandList } from "../utils/globals";
 import { Client, MessageEmbed, TextChannel } from "discord.js";
@@ -70,7 +72,6 @@ function twitterPost(user: string): void {
         postBody, // Post body
         "", // Post content type ?
         (err) => {
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
             if (err) {
                 console.log(err);
             } else {
@@ -273,11 +274,11 @@ export async function intiChatClient(): Promise<void> {
 
         if (cmd === undefined) return;
 
-        if (!(msg.member?.hasPermission("MANAGE_GUILD") ?? false)) {
-            return msg.reply("Please make sure you have the permission Manage_Server to use any of my commands!");
-        }
 
         if (cmd === "fallback") {
+            if (!(msg.member?.hasPermission("MANAGE_GUILD") ?? false)) {
+                return msg.reply("Please make sure you have the permission Manage_Server to use any of my commands!");
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (args[0] === undefined) {
@@ -373,6 +374,10 @@ export async function intiChatClient(): Promise<void> {
 
         if (cmd === "host") {
 
+            if (!(msg.member?.hasPermission("MANAGE_GUILD") ?? false)) {
+                return msg.reply("Please make sure you have the permission Manage_Server to use any of my commands!");
+            }
+
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (args[0] === undefined) {
                 return msg.reply(
@@ -467,6 +472,10 @@ export async function intiChatClient(): Promise<void> {
         }
 
         if (cmd === "block") {
+
+            if (!(msg.member?.hasPermission("MANAGE_GUILD") ?? false)) {
+                return msg.reply("Please make sure you have the permission Manage_Server to use any of my commands!");
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (args[0] === undefined) {
