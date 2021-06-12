@@ -2,3 +2,4 @@ canHost: []
 channels: []
 currentlyHosted: ""
 fallBackList: ["Array Of users to fallback to when the Hostlist is empty"]
+usersBlacklist: ["Array of users to not host ever"]

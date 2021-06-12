@@ -110,7 +110,7 @@ export async function intiChatClient(): Promise<void> {
         console.log(`${new Date().toTimeString()} Chatters currently in chat: \n${allChatters.join(", ")}`);
 
         allChatters.forEach((chatter) => {
-            if (CONFIG.usersBlacklist.includes(chatter)) return;
+            if (STORAGE.usersBlacklist.includes(chatter)) return;
 
             const foundChannel = STORAGE.channels.find((channel) => channel.channel === chatter);
             if (foundChannel === undefined) {
@@ -210,7 +210,7 @@ export async function intiChatClient(): Promise<void> {
     chatClient.onMessage(async (channel: string, user: string, message: string, msg: TwitchPrivateMessage) => {
 
         const isLive = await apiClient.helix.streams.getStreamByUserName(channel.slice(1));
-        if (CONFIG.usersBlacklist.includes(channel)) return;
+        if (STORAGE.usersBlacklist.includes(channel)) return;
 
         if (isLive !== null) {
             if (CONFIG.chatChannelID !== undefined) {
@@ -272,6 +272,10 @@ export async function intiChatClient(): Promise<void> {
         const cmd = args.shift()?.toLowerCase();
 
         if (cmd === undefined) return;
+
+        if (!(msg.member?.hasPermission("MANAGE_GUILD") ?? false)) {
+            return msg.reply("Please make sure you have the permission Manage_Server to use any of my commands!");
+        }
 
         if (cmd === "fallback") {
 
@@ -348,13 +352,14 @@ export async function intiChatClient(): Promise<void> {
                         )
                         .setTitle("Fallback list")
                         .setTimestamp()
-                        .setDescription(roleList.join(""));
+                        .setDescription(roleList.join(""))
+                        .setFooter(`Page ${page}`);
 
                     try {
                         return msg.channel.send(embed);
                     } catch (_) {
                         const roles = roleList.join("");
-                        return msg.channel.send(`> listed roles:\n> ${roles}`);
+                        return msg.channel.send(`> listed channels:\n> ${roles}`);
                     }
                 }
 
@@ -366,6 +371,195 @@ export async function intiChatClient(): Promise<void> {
             }
         }
 
+        if (cmd === "host") {
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (args[0] === undefined) {
+                return msg.reply(
+                    "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                    + `\`${prefix}host add king_o_karma\``);
+            }
+            switch (args[0].toLowerCase()) {
+                case "add": {
+                    // eslint-disable-next-line prefer-destructuring
+                    const channel = args[1];
+
+                    // Checks if the role they want to add is already added
+                    if (STORAGE.canHost.includes(channel.toLowerCase())) {
+                        return msg.channel.send(`\`${channel}\` is already on the list! ❌`);
+                    }
+
+                    // Otherwise finally add it to the list
+                    STORAGE.canHost.push(channel.toLowerCase());
+                    Storage.saveConfig();
+
+                    return msg.channel.send(
+                        `I have added the channel \`${channel}\` to the list! ✅`
+                    );
+                }
+
+                case "remove": {
+                    // eslint-disable-next-line prefer-destructuring
+                    const channel = args[1];
+
+                    // Checks if the role they want to add is already added
+                    if (!STORAGE.canHost.includes(channel.toLowerCase())) {
+                        return msg.channel.send(`\`${channel}\` is not on the list! ❌`);
+                    }
+
+                    // Checks the location in the array for the role
+                    const roleIndex = STORAGE.canHost.indexOf(channel.toLowerCase());
+
+                    // Removes the role from the array with the index number
+                    STORAGE.canHost.splice(roleIndex, 1);
+                    Storage.saveConfig();
+
+                    return msg.channel.send(
+                        `I have removed the channel \`${channel} \` from the list ✅`);
+                }
+
+                case "list": {
+                    if (!STORAGE.canHost.length) {
+                        return msg.channel.send(
+                            `The list is currently emtpy! use ${prefix}host addd <channel> `
+                            + "to add a channel to the list!"
+                        );
+                    }
+                    function paginate(array: string[], pageSize: number, pageNumber: number): string[] {
+                        return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+                    }
+                    // eslint-disable-next-line prefer-destructuring
+                    let page = args[1];
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (args[1] === undefined) page = "1";
+
+                    const pagedList = paginate(STORAGE.canHost, 10, Number(page));
+
+                    if (pagedList.length === 0) return msg.reply("That page is empty!\n You can add more users via "
+                        + `\`${prefix}host add <channelName>\``);
+
+                    const roleList = pagedList.map((list) => `> ○ ${list}\n`);
+                    const embed = new MessageEmbed()
+                        .setAuthor(
+                            msg.author.tag,
+                            msg.author.displayAvatarURL({ dynamic: true })
+                        )
+                        .setTitle("To Host list")
+                        .setTimestamp()
+                        .setDescription(roleList.join(""))
+                        .setFooter(`Page ${page}`);
+
+
+                    try {
+                        return msg.channel.send(embed);
+                    } catch (_) {
+                        const roles = roleList.join("");
+                        return msg.channel.send(`> listed channels:\n> ${roles}`);
+                    }
+                }
+
+                default: {
+                    return msg.reply(
+                        "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                        + `\`${prefix}host add king_o_karma\``);
+                }
+            }
+        }
+
+        if (cmd === "block") {
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (args[0] === undefined) {
+                return msg.reply(
+                    "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                    + `\`${prefix}block add king_o_karma\``);
+            }
+            switch (args[0].toLowerCase()) {
+                case "add": {
+                    // eslint-disable-next-line prefer-destructuring
+                    const channel = args[1];
+
+                    // Checks if the role they want to add is already added
+                    if (STORAGE.usersBlacklist.includes(channel.toLowerCase())) {
+                        return msg.channel.send(`\`${channel}\` is already on the list! ❌`);
+                    }
+
+                    // Otherwise finally add it to the list
+                    STORAGE.usersBlacklist.push(channel.toLowerCase());
+                    Storage.saveConfig();
+
+                    return msg.channel.send(
+                        `I have added the channel \`${channel}\` to the list! ✅`
+                    );
+                }
+
+                case "remove": {
+                    // eslint-disable-next-line prefer-destructuring
+                    const channel = args[1];
+
+                    // Checks if the role they want to add is already added
+                    if (!STORAGE.usersBlacklist.includes(channel.toLowerCase())) {
+                        return msg.channel.send(`\`${channel}\` is not on the list! ❌`);
+                    }
+
+                    // Checks the location in the array for the role
+                    const roleIndex = STORAGE.usersBlacklist.indexOf(channel.toLowerCase());
+
+                    // Removes the role from the array with the index number
+                    STORAGE.usersBlacklist.splice(roleIndex, 1);
+                    Storage.saveConfig();
+
+                    return msg.channel.send(
+                        `I have removed the channel \`${channel} \` from the list ✅`);
+                }
+
+                case "list": {
+                    if (!STORAGE.usersBlacklist.length) {
+                        return msg.channel.send(
+                            `The list is currently emtpy! use ${prefix}block addd <channel> `
+                            + "to add a channel to the list!"
+                        );
+                    }
+                    function paginate(array: string[], pageSize: number, pageNumber: number): string[] {
+                        return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+                    }
+                    // eslint-disable-next-line prefer-destructuring
+                    let page = args[1];
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                    if (args[1] === undefined) page = "1";
+
+                    const pagedList = paginate(STORAGE.usersBlacklist, 10, Number(page));
+
+                    if (pagedList.length === 0) return msg.reply("That page is empty!\n You can add more users via "
+                        + `\`${prefix}block add <channelName>\``);
+
+                    const roleList = pagedList.map((list) => `> ○ ${list}\n`);
+                    const embed = new MessageEmbed()
+                        .setAuthor(
+                            msg.author.tag,
+                            msg.author.displayAvatarURL({ dynamic: true })
+                        )
+                        .setTitle("Blocked users list")
+                        .setTimestamp()
+                        .setDescription(roleList.join(""))
+                        .setFooter(`Page ${page}`);
+
+
+                    try {
+                        return msg.channel.send(embed);
+                    } catch (_) {
+                        const roles = roleList.join("");
+                        return msg.channel.send(`> listed channels:\n> ${roles}`);
+                    }
+                }
+
+                default: {
+                    return msg.reply(
+                        "> Please specify either `add`, `remove` or `list` when using this command, \n**Example usage:** "
+                        + `\`${prefix}block add king_o_karma\``);
+                }
+            }
+        }
 
     });
 

@@ -14,6 +14,7 @@ export interface TwitchChannel {
  * @property {TwitchChannel[]} channels
  * @property {string} currentlyHosted
  * @property {string[]} fallBackList
+ * @property {string[]} usersBlacklist
 
 
  */
@@ -28,12 +29,15 @@ export default class Storage {
 
     public fallBackList: string[];
 
+    public usersBlacklist: string[];
+
+
     private constructor() {
         this.channels = [{ channel: "", minCheck: 0 }];
         this.canHost = [""];
         this.currentlyHosted = "";
         this.fallBackList = [""];
-
+        this.usersBlacklist = [""];
     }
 
     /**

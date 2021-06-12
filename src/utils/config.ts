@@ -24,7 +24,6 @@ export interface Twitter {
  * @property {string} prefix
  * @property {string} twitchUsername
  * @property {Twitter} twitter
- * @property {string[]} usersBlacklist
  */
 export default class Config {
     private static readonly _configLocation = "./config.yml";
@@ -51,9 +50,6 @@ export default class Config {
 
     public readonly twitter: Twitter;
 
-    public readonly usersBlacklist: string[];
-
-
     private constructor() {
         this.accessToken = "";
         this.botAccessToken = "";
@@ -72,9 +68,6 @@ export default class Config {
             userAccessToken: "",
             userSecret: ""
         };
-
-        this.usersBlacklist = [""];
-
     }
 
     /**
