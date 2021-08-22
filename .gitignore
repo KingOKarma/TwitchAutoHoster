@@ -6,3 +6,4 @@ config.yml
 build
 .env
 storage.yml
+token.yml

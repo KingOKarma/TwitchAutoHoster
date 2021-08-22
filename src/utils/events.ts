@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { CONFIG, STORAGE, commandList } from "../utils/globals";
+import { CONFIG, STORAGE, TOKEN, commandList } from "../utils/globals";
 import { Client, MessageEmbed, TextChannel } from "discord.js";
+import { RefreshableAuthProvider, StaticAuthProvider } from "twitch-auth";
 import { ApiClient } from "twitch";
 import { ChatClient } from "twitch-chat-client";
 import { CronJob } from "cron";
 import OAuth from "oauth";
-import { StaticAuthProvider } from "twitch-auth";
 import Storage from "./storage";
+import Token from "./token";
 import { TwitchPrivateMessage } from "twitch-chat-client/lib/StandardCommands/TwitchPrivateMessage";
 import fetch from "node-fetch";
 
@@ -43,12 +44,28 @@ interface Chatters {
 }
 // Config consts
 const { clientID } = CONFIG;
-const { botAccessToken } = CONFIG;
+const { clientSecret } = CONFIG;
+
 
 // Auth Consts
-const authChatProvider = new StaticAuthProvider(clientID, botAccessToken);
-
-const apiClient = new ApiClient({ authProvider: authChatProvider });
+export const authProvider = new RefreshableAuthProvider(
+    new StaticAuthProvider(clientID, TOKEN.tokenData.accessToken),
+    {
+        clientSecret,
+        expiry: TOKEN.tokenData.expiryTimestamp === null ? null : new Date(TOKEN.tokenData.expiryTimestamp),
+        onRefresh: async ({ accessToken, refreshToken, expiryDate }): Promise<void> => {
+            const newTokenData = {
+                accessToken,
+                expiryTimestamp: expiryDate === null ? null : expiryDate.getTime(),
+                refreshToken
+            };
+            TOKEN.tokenData = newTokenData;
+            Token.saveConfig();
+        },
+        refreshToken: TOKEN.tokenData.refreshToken
+    }
+);
+const apiClient = new ApiClient({ authProvider });
 
 const bot = new Client();
 
@@ -85,7 +102,7 @@ export async function intiChatClient(): Promise<void> {
 
     const channels = [CONFIG.twitchUsername];
 
-    const chatClient = new ChatClient(authChatProvider, { botLevel: "known", channels });
+    const chatClient = new ChatClient(authProvider, { botLevel: "known", channels });
 
 
     // Listen to more events...

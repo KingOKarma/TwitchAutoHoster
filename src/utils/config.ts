@@ -13,8 +13,6 @@ export interface Twitter {
 /**
  * This represents the config.yml
  * @class Config
- * @property {string} accessToken
- * @property {string} botAccessToken
  * @property {string} botUserName
  * @property {string} changeHostChannelID
  * @property {string} chatChannelID
@@ -28,10 +26,6 @@ export interface Twitter {
 export default class Config {
     private static readonly _configLocation = "./config.yml";
 
-    public readonly accessToken: string;
-
-    public readonly botAccessToken: string;
-
     public readonly botUserName: string;
 
     public readonly changeHostChannelID: string | undefined;
@@ -39,6 +33,8 @@ export default class Config {
     public readonly chatChannelID: string | undefined;
 
     public readonly clientID: string;
+
+    public readonly clientSecret: string;
 
     public readonly discordBotToken: string | undefined;
 
@@ -51,12 +47,11 @@ export default class Config {
     public readonly twitter: Twitter;
 
     private constructor() {
-        this.accessToken = "";
-        this.botAccessToken = "";
         this.botUserName = "";
         this.changeHostChannelID = "";
         this.chatChannelID = "";
         this.clientID = "";
+        this.clientSecret = "";
         this.discordBotToken = "";
         this.offlineChannelID = "";
         this.prefix = "";
