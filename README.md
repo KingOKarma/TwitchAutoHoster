@@ -1,7 +1,7 @@
 # TwitchAutoHoster
 
-- Host uses when they have watched at least 5 hours hosts users for 30 mins, move onto next user, if no users online host
-- Host Users In Fallback List if no Live channel with 5+Hours watchtime.
+- Host uses when they have watched at least 3 hours hosts users for 30 mins, move onto next user, if no users online host
+- Host Users In Fallback List if no Live channel with 3+Hours watchtime.
 
 
 - Connects to discord chat with twitch chat, and send whos next for hosting in discord too

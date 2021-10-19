@@ -4,8 +4,10 @@ import fs from "fs";
 
 export interface TokenData {
     accessToken: string;
-    expiryTimestamp: number | null;
-    refreshToken: string;
+    expiresIn: number | null;
+    obtainmentTimestamp: number;
+    refreshToken: string | null;
+
 }
 
 /**
@@ -21,7 +23,7 @@ export default class Token {
 
 
     private constructor() {
-        this.tokenData = { accessToken: "", expiryTimestamp: null, refreshToken: "" };
+        this.tokenData = { accessToken: "", expiresIn: 0, obtainmentTimestamp: 0, refreshToken: "" };
 
     }
 

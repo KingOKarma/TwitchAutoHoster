@@ -13,10 +13,10 @@ export interface Twitter {
 /**
  * This represents the config.yml
  * @class Config
- * @property {string} botUserName
+ * @property {string} botUsername
  * @property {string} changeHostChannelID
  * @property {string} chatChannelID
- * @property {string} clientID
+ * @property {string} clientId
  * @property {string} discordBotToken
  * @property {string} offlineChannelID
  * @property {string} prefix
@@ -26,13 +26,13 @@ export interface Twitter {
 export default class Config {
     private static readonly _configLocation = "./config.yml";
 
-    public readonly botUserName: string;
+    public readonly botUsername: string;
 
     public readonly changeHostChannelID: string | undefined;
 
     public readonly chatChannelID: string | undefined;
 
-    public readonly clientID: string;
+    public readonly clientId: string;
 
     public readonly clientSecret: string;
 
@@ -47,10 +47,10 @@ export default class Config {
     public readonly twitter: Twitter;
 
     private constructor() {
-        this.botUserName = "";
+        this.botUsername = "";
         this.changeHostChannelID = "";
         this.chatChannelID = "";
-        this.clientID = "";
+        this.clientId = "";
         this.clientSecret = "";
         this.discordBotToken = "";
         this.offlineChannelID = "";
