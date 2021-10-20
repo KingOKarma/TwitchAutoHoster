@@ -35,10 +35,7 @@ export function twitterPost(user: string): void {
         postBody, // Post body
         "", // Post content type ?
         (err) => {
-            if (err.statusCode !== 200) {
-                console.log(err);
-            } else {
-                // Console.log(data);
-            }
+
+            console.log(err);
         });
 }
