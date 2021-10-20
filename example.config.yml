@@ -1,34 +1,24 @@
-accessToken: Your access Token
-# This will be shown when using the link below in the url address, make sure this access token was allowed
-# This access token needs the scopes: user:edit:broadcast
-
-botAccessToken: This is the access Token used for the bot account
-# using your chatbot of choice's token (This is to allows the bot to view and type in chat)
-
-botUsername: YOUR TWITCH Bots user name in LOWERCASE
+botUsername: "YOUR TWITCH Bots user name in LOWERCASE"
 
 changeHostChannelID: "The Discord channel ID where autohost events will be posted"
 
 chatChannelID: "Discord Channel ID where chat will be relayed"
 
-clientId: Your Client ID
-# When getting your client ID
-# Make sure the broadcaster you are getting the client ID for has authorised this link
+offlineChannelID: "CHANNEL ID FOR OFFLINE CHAT CHANNEL"
 
-#https://id.twitch.tv/oauth2/authorize?client_id=<CLIENTID>&redirect_uri=<OneOfTheLinksFromYourRedirectURL>&response_type=token&scope=bits:read%20channel:read:subscriptions
-# <CLIENTID> = Your Client ID
-# <OneOfTheLinksFromYourRedirectURL> = This is one of your links from the "OAuth Redirect URLs" on your twitch dev console
+clientId: "Your Client ID"
+clientSecret: "Your Client Secret"
+# When getting your client ID
 
 #Twitch Dev console can be found at:
 #https://dev.twitch.tv/console/
 
-discordBotToken: YOUR Discord Bot Token
+# Leave empty if you're not using the discord features.
+discordBotToken: "YOUR Discord Bot Token"
 
-offlineChannelID: "CHANNEL ID FOR OFFLINE CHAT CHANNEL"
+prefix: "Your Prefix here"
 
-prefix: Your Prefix here
-
-twitchUsername: Put Your Twitch Username here in full lowercase letters
+twitchUsername: "Put Your Twitch Username here in full lowercase letters"
 # If your hostname also has a path prefix you can go into main.ts and edit under "port" in "ReverseProxyAdapter":  "pathprefix" same case for the external port
 
 # Are you going to be using a service such as replit to host the bot? 
@@ -39,7 +29,7 @@ usingExpress: false
 twitter: {
     consumerKey: "",
     consumerSecret: "",
-    postToTwitter: true, # Should the bot post to twitter when getting a new host?
+    postToTwitter: false, # Should the bot post to twitter when getting a new host?
     userAccessToken: "",
     userSecret: "",
   }
