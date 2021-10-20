@@ -124,8 +124,8 @@ export function twitchReady(client: ExtendedClient): void {
 
         Storage.saveConfig();
         return client.say(CONFIG.botUsername, `/host ${channel.toLowerCase()}`).catch(console.error);
-        // 3 hours 10800000
-    }, 10800000);
+        // 30 mins 1800000
+    }, 1800000);
 
     setInterval(async () => {
         const stream = await client.apiClient.streams.getStreamByUserName(CONFIG.twitchUsername);
