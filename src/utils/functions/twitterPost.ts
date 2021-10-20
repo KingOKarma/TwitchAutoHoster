@@ -22,7 +22,7 @@ export function twitterPost(user: string): void {
     if (!CONFIG.twitter.postToTwitter) return;
 
     const status = `${user} Has been switched to the new host, check them out at https://twitch.tv/${user.toLowerCase()} \n `
-        + "#StreamerCommunity #StyxCommunity #EverStreamGuild"; // This is the tweet (ie status)
+        + "#Livestream #TwitchStreamer #StreamerCommunity"; // This is the tweet (ie status)
 
     const postBody = {
         status

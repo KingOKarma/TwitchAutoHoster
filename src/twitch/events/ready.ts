@@ -3,6 +3,7 @@ import { Chatters } from "../../interfaces";
 import ExtendedClient from "../../client/client";
 import Storage from "../../utils/storage";
 import { TextChannel } from "discord.js";
+import fetch from "node-fetch";
 import { twitterPost } from "../../utils/functions/twitterPost";
 
 export function twitchReady(client: ExtendedClient): void {
@@ -10,28 +11,35 @@ export function twitchReady(client: ExtendedClient): void {
     // 18 checks every 3 hours
     // This interval default runs every 10 minuites, and does a check to see if users are in chat or not
     setInterval(async () => {
+        const allChatters: string[] = [];
 
-        const res = await fetch(
-            `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername}/chatters`
-        );
+        try {
+            const res = await fetch(
+                `https://tmi.twitch.tv/group/user/${CONFIG.twitchUsername.toLowerCase()}/chatters`
+            );
+            const data = (await res.json()) as Chatters;
 
-        if (res.status !== 200) {
-            throw new Error(`Received a ${res.status} status code`);
+            allChatters.push(...data.chatters.admins);
+            allChatters.push(...data.chatters.broadcaster);
+            allChatters.push(...data.chatters.global_mods);
+            allChatters.push(...data.chatters.moderators);
+            allChatters.push(...data.chatters.staff);
+            allChatters.push(...data.chatters.viewers);
+            allChatters.push(...data.chatters.vips);
+        } catch (err) {
+            console.error(`Failed to get Chatters array due to:\n${err}`);
         }
 
-
-        const body: Chatters = await res.json();
-        const allChatters = body.chatters.viewers;
-        allChatters.concat(body.chatters.staff);
-        allChatters.concat(body.chatters.global_mods);
-        allChatters.concat(body.chatters.admins);
-        allChatters.concat(body.chatters.vips);
         console.log(`${new Date().toTimeString()} Chatters currently in chat: \n${allChatters.join(", ")}`);
 
         allChatters.forEach((chatter) => {
+            if (chatter === CONFIG.botUsername) return;
             if (STORAGE.usersBlacklist.includes(chatter)) return;
 
             const foundChannel = STORAGE.channels.find((channel) => channel.channel === chatter);
+            const canhostCheck = STORAGE.canHost.find((channel) => channel === chatter);
+            if (canhostCheck !== undefined) return;
+
             if (foundChannel === undefined) {
                 STORAGE.channels.push({ channel: chatter, minCheck: 0 });
                 Storage.saveConfig();
@@ -48,14 +56,18 @@ export function twitchReady(client: ExtendedClient): void {
             Storage.saveConfig();
 
         });
-        // 10 mins
+        // 10 mins 600000
     }, 600000);
 
     async function backupHost(): Promise<void> {
         const channel = STORAGE.fallBackList[Math.floor(Math.random() * STORAGE.fallBackList.length)];
         if (channel === STORAGE.currentlyHosted) return;
         const stream = await client.apiClient.streams.getStreamByUserName(channel);
-        if (stream === null) return backupHost();
+        if (stream === null) {
+            console.log("No on fallback is streaming, retrying...");
+            void backupHost();
+            return;
+        }
         console.log("Fallback List");
         console.log(STORAGE.fallBackList);
         console.log(channel);
@@ -69,7 +81,7 @@ export function twitchReady(client: ExtendedClient): void {
         twitterPost(channel);
 
         Storage.saveConfig();
-        return client.host(CONFIG.botUsername, channel.toLowerCase()).catch(console.error);
+        return client.say(CONFIG.botUsername, `/host ${channel.toLowerCase()}`).catch(console.error);
 
     }
 
@@ -77,13 +89,27 @@ export function twitchReady(client: ExtendedClient): void {
         console.log("New Host time:");
         console.log(STORAGE.canHost.length === 0);
 
-        if (STORAGE.canHost.length === 0) return backupHost();
+        if (STORAGE.canHost.length === 0) {
+            void backupHost();
+            return;
+        }
         console.log(STORAGE.canHost);
 
         const channel = STORAGE.canHost[Math.floor(Math.random() * STORAGE.canHost.length)];
-        if (channel === STORAGE.currentlyHosted) return backupHost();
+        if (channel === CONFIG.botUsername) {
+            void backupHost();
+            return;
+        }
+
+        if (channel === STORAGE.currentlyHosted) {
+            void backupHost();
+            return;
+        }
         const user = await client.apiClient.streams.getStreamByUserName(channel);
-        if (user === null) return backupHost();
+        if (user === null) {
+            void backupHost();
+            return;
+        }
 
         STORAGE.currentlyHosted = channel.toLowerCase();
         const hostedChannel = STORAGE.canHost.indexOf(channel);
@@ -97,8 +123,9 @@ export function twitchReady(client: ExtendedClient): void {
         twitterPost(channel);
 
         Storage.saveConfig();
-        return client.host(CONFIG.botUsername, channel.toLowerCase()).catch(console.error);
-    }, 600000);
+        return client.say(CONFIG.botUsername, `/host ${channel.toLowerCase()}`).catch(console.error);
+        // 3 hours 10800000
+    }, 10800000);
 
     setInterval(async () => {
         const stream = await client.apiClient.streams.getStreamByUserName(CONFIG.twitchUsername);
