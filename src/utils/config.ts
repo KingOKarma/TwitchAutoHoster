@@ -46,6 +46,9 @@ export default class Config {
 
     public readonly twitter: Twitter;
 
+    public usingExpress: boolean;
+
+
     private constructor() {
         this.botUsername = "";
         this.changeHostChannelID = "";
@@ -63,6 +66,7 @@ export default class Config {
             userAccessToken: "",
             userSecret: ""
         };
+        this.usingExpress = false;
     }
 
     /**

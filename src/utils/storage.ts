@@ -31,7 +31,6 @@ export default class Storage {
 
     public usersBlacklist: string[];
 
-
     private constructor() {
         this.channels = [{ channel: "", minCheck: 0 }];
         this.canHost = [""];

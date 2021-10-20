@@ -6,7 +6,9 @@ import { Client } from "discord.js";
 import { RefreshingAuthProvider } from "@twurple/auth";
 import Token from "../utils/token";
 import { eventBinder } from "../utils/eventBinder";
+import express from "express";
 import fs from "fs";
+import ms from "ms";
 import path from "path";
 import { twitchReady } from "../twitch/events/ready";
 
@@ -31,7 +33,7 @@ class ExtendedClient extends ChatClient {
     public apiClient = new ApiClient({ authProvider });
     public clientEvent = eventBinder(this);
     public discord: Client = new Client(
-        { intents: ["GUILD_MESSAGES", "GUILDS", "GUILD_MESSAGE_TYPING", "GUILD_MEMBERS", "DIRECT_MESSAGES"] } );
+        { intents: ["GUILD_MESSAGES", "GUILDS", "GUILD_MESSAGE_TYPING", "GUILD_MEMBERS", "DIRECT_MESSAGES"] });
     public discordAliases: Map<string, DiscordCommands> = new Map();
     public discordCommands: Map<string, DiscordCommands> = new Map();
     public discordCooldowns: Map<string, DiscordCooldowns> = new Map();
@@ -45,6 +47,7 @@ class ExtendedClient extends ChatClient {
 
     public async initChatClient(): Promise<void> {
 
+
         await this.discord.login(CONFIG.discordBotToken).then(() => {
             console.log(`Sucessfully Logged into the Discord client as ${this.discord.user?.tag}!`);
         }).catch(console.error);
@@ -52,6 +55,17 @@ class ExtendedClient extends ChatClient {
         await this.connect().then(() => {
             console.log(`Sucessfully connected to Twitch client as ${CONFIG.botUsername}`);
         }).catch(console.error);
+
+        if (CONFIG.usingExpress) {
+            const app = express();
+            const port = 3000;
+
+            app.get("/", (req, res) => res.send(
+                `${this.discord.user?.tag} has been online for ${ms(this.discord.uptime ?? 0)}<br>`
+                + `<br>${this.currentNick} ${this.isConnected ? "Is connected" : "Is not connected"}`));
+            app.listen(port, () => void console.log(`Twitch AutoHoster is listening at http://localhost:${port}`));
+        }
+
 
         /* DISCORD Commands */
         const discCommandsPath = path.join(__dirname, "..", "discord", "commands");
